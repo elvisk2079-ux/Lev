@@ -7,17 +7,14 @@
 <style>
 :root{--bg:#FFF8EE;--card:#fff;--ink:#2B2B2B;--muted:#7a7468;--green:#2E8B57;--green2:#E3F4EA;--orange:#FF8C42;--orange2:#FFE9D9;--red:#E04848;--red2:#FDE3E3;--line:#EADFCF}
 *{box-sizing:border-box}
-html{scroll-behavior:smooth;scroll-padding-top:70px}
+html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;font-size:18px}
 header{background:linear-gradient(135deg,#2E8B57,#46A86F);color:#fff;padding:18px 16px 14px;text-align:center}
 header .unit{font-size:14px;opacity:.9;letter-spacing:.5px}
 header h1{margin:4px 0 2px;font-size:24px}
-header .parts{margin-top:10px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
-header .parts a{color:#fff;text-decoration:none;font-size:14px;padding:4px 10px;border-radius:20px;background:rgba(255,255,255,.18)}
-header .parts a.cur{background:#fff;color:var(--green);font-weight:700}
-nav{display:flex;gap:6px;overflow-x:auto;padding:10px 12px;position:sticky;top:0;background:rgba(255,248,238,.96);z-index:5;border-bottom:1px solid var(--line)}
-nav a{flex:0 0 auto;border:2px solid var(--line);background:#fff;border-radius:20px;padding:5px 11px;font-size:14px;color:var(--ink);text-decoration:none;white-space:nowrap}
-nav a.ok{border-color:var(--green);background:var(--green2)}
+.parts.bottom{text-align:center;padding:10px 16px 0}
+.parts.bottom a{display:inline-block;margin:4px;color:var(--green);text-decoration:none;font-size:16px;padding:8px 14px;border-radius:20px;background:#fff;border:2px solid var(--green)}
+.parts.bottom a.cur{background:var(--green);color:#fff;font-weight:700}
 main{max-width:780px;margin:0 auto;padding:16px}
 section.panel{background:var(--card);border-radius:20px;padding:20px;box-shadow:0 4px 18px rgba(80,60,20,.08);margin-bottom:22px}
 .top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
@@ -98,10 +95,9 @@ footer{text-align:center;color:var(--muted);font-size:13px;padding:10px 24px 40p
 <header>
   <div class="unit">Gateway A2 · Unit 6 · EAT WELL, LIVE WELL · p. 79</div>
   <h1>Words — Часть 4 (слова 37–48)</h1>
-  <div class="parts"><a href="part1.html">Часть 1</a><a href="part2.html">Часть 2</a><a href="part3.html">Часть 3</a><a href="part4.html" class="cur">Часть 4</a><a href="all-words.html">Все слова</a></div>
 </header>
-<nav id="nav"></nav>
 <main id="main"></main>
+<div class="parts bottom"><div style="margin-bottom:8px;color:#7a7468">Другие части:</div><a href="part1.html">Часть 1</a><a href="part2.html">Часть 2</a><a href="part3.html">Часть 3</a><a href="part4.html" class="cur">Часть 4</a><a href="all-words.html">Все слова</a></div>
 <footer>Слова по тексту «What's in your food?» · удачи в понедельник, Лев! 💪</footer>
 <button class="totop" onclick="window.scrollTo({top:0})" title="Наверх">↑</button>
 <script>
@@ -126,18 +122,17 @@ function maskOf(a,n){return a.split('').map((c,k)=>c===' '?'&nbsp;':(k<n?esc(c):
 function stars(p){return p>=.9?'⭐⭐⭐':p>=.7?'⭐⭐':p>=.5?'⭐':'💪';}
 
 /* ---------- section scaffold ---------- */
-const SECTIONS=[];
+const SECTIONS=[];const NOLINK={classList:{add(){},remove(){}}};
 function addSection(key,title,short,desc,render){SECTIONS.push({key,title,short,desc,render});}
 function tracker(sec,total){
-  let ok=0,done=0;const prog=$('.prog',sec.el),link=$(`nav a[href="#${sec.key}"]`);
+  let ok=0,done=0;const prog=$('.prog',sec.el),link=NOLINK;
   prog.textContent='';link.classList.remove('ok');
   return{mark(good){done++;if(good)ok++;prog.textContent=`✅ ${ok} / ${total}`+(done>=total?'  '+stars(ok/total):'');if(done>=total)link.classList.add('ok');}};
 }
 function buildPage(){
-  const main=$('#main'),nav=$('#nav');
+  const main=$('#main');
   SECTIONS.forEach((s,k)=>{
     s.n=k+1;
-    nav.insertAdjacentHTML('beforeend',`<a href="#${s.key}">${s.n}. ${s.short}</a>`);
     main.insertAdjacentHTML('beforeend',`<section class="panel" id="${s.key}"><div class="top"><h2>${s.n}. ${s.title}</h2><div class="prog"></div></div><p class="desc">${s.desc}</p><div class="body"></div>
       ${s.noReset?'':'<div class="row"><button class="btn ghost small reset">🔄 Начать заново (перемешать)</button></div>'}</section>`);
     s.el=$('#'+s.key);s.body=$('.body',s.el);
@@ -203,9 +198,9 @@ addSection('ruen','Выбери английское слово','Слово RU�
 /* ---------- 5. matching ---------- */
 addSection('match','Найди пару','Пары','Нажми на английское слово, потом на его перевод.',(b,s)=>{
   const all=shuffle(W),rounds=[];for(let k=0;k<all.length;k+=6)rounds.push(all.slice(k,k+6));
-  let r=0,mistakes=0;const prog=$('.prog',s.el);prog.textContent='';$(`nav a[href="#${s.key}"]`).classList.remove('ok');
+  let r=0,mistakes=0;const prog=$('.prog',s.el);prog.textContent='';NOLINK.classList.remove('ok');
   function show(){
-    if(r>=rounds.length){prog.textContent=`Ошибок: ${mistakes}  `+(mistakes===0?'⭐⭐⭐':mistakes<=3?'⭐⭐':'⭐');$(`nav a[href="#${s.key}"]`).classList.add('ok');
+    if(r>=rounds.length){prog.textContent=`Ошибок: ${mistakes}  `+(mistakes===0?'⭐⭐⭐':mistakes<=3?'⭐⭐':'⭐');NOLINK.classList.add('ok');
       b.innerHTML=`<div class="center"><div class="stars">${mistakes===0?'⭐⭐⭐':mistakes<=3?'⭐⭐':'⭐'}</div><p class="big">Все пары собраны! Ошибок: ${mistakes}</p></div>`;return;}
     const set=rounds[r],L=shuffle(set),R=shuffle(set);let sel=null,done=0;
     prog.textContent=`раунд ${r+1} / ${rounds.length} · ошибок: ${mistakes}`;
@@ -309,13 +304,13 @@ addSection('tr','Переведи предложение','Переведи','П
 
 /* ---------- 11. final test ---------- */
 addSection('test','Итоговый тест','🏆 Тест',`${TEST_N} вопросов вперемешку: перевод, слово, пропуск. Без подсказок!`,(b,s)=>{
-  const prog=$('.prog',s.el);prog.textContent='';$(`nav a[href="#${s.key}"]`).classList.remove('ok');
+  const prog=$('.prog',s.el);prog.textContent='';NOLINK.classList.remove('ok');
   b.innerHTML=`<div class="center"><button class="btn alt" style="font-size:20px;padding:14px 26px">🏆 Начать тест</button></div>`;
   $('button',b).onclick=()=>{
     const gens=[qEnRu,qRuEn,qGap];const qs=shuffle(shuffle(W).slice(0,TEST_N).map((w,k)=>gens[k%3](w)));
     let i=0,score=0;const wrong=[];
     function show(){
-      if(i>=qs.length){const p=score/qs.length;prog.textContent=`✅ ${score} / ${qs.length}  ${stars(p)}`;$(`nav a[href="#${s.key}"]`).classList.add('ok');
+      if(i>=qs.length){const p=score/qs.length;prog.textContent=`✅ ${score} / ${qs.length}  ${stars(p)}`;NOLINK.classList.add('ok');
         const mark=p>=.9?5:p>=.7?4:p>=.5?3:2;
         b.innerHTML=`<div class="center"><div class="stars">${stars(p)}</div><p class="big">${score} из ${qs.length} · оценка ${mark}</p>
           ${wrong.length?`<p style="color:#7a7468">Повтори эти слова:</p><p>${wrong.map(w=>`<b>${esc(w.w)}</b> — ${esc(w.ru)}`).join('<br>')}</p>`:'<p>Ни одной ошибки! 🎉</p>'}</div>`;
