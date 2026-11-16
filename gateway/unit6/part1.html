@@ -98,7 +98,7 @@ footer{text-align:center;color:var(--muted);font-size:13px;padding:10px 24px 40p
 </header>
 <main id="main"></main>
 <div class="parts bottom"><div style="margin-bottom:8px;color:#7a7468">Другие части:</div><a href="part1.html" class="cur">Часть 1</a><a href="part2.html">Часть 2</a><a href="part3.html">Часть 3</a><a href="part4.html">Часть 4</a><a href="all-words.html">Все слова</a></div>
-<footer>Слова по тексту «What's in your food?» · удачи в понедельник, Лев! 💪</footer>
+<footer>Слова по тексту «What's in your food?» · удачи, Лев! 💪</footer>
 <button class="totop" onclick="window.scrollTo({top:0})" title="Наверх">↑</button>
 <script>
 const W=[{"w": "so", "ipa": "/səʊ/", "ru": "поэтому; итак", "ex": "I was hungry, so I ate a sandwich.", "ga": "so", "exRu": "Я был голоден, поэтому я съел бутерброд.", "note": "«поэтому» — в середине предложения, «итак» — в начале предложения"}, {"w": "to have an idea", "ipa": "/hæv ən aɪˈdɪə/", "ru": "иметь представление о чём-то", "ex": "Do you have an idea what is in this cake?", "ga": "have an idea", "exRu": "Ты имеешь представление, что в этом торте?", "note": ""}, {"w": "exactly", "ipa": "/ɪɡˈzæk(t)li/", "ru": "точно, именно", "ex": "I don't know exactly what is in my food.", "ga": "exactly", "exRu": "Я не знаю точно, что в моей еде.", "note": ""}, {"w": "even", "ipa": "/ˈiːvn/", "ru": "даже", "ex": "He even eats broccoli.", "ga": "even", "exRu": "Он даже ест брокколи.", "note": ""}, {"w": "healthy", "ipa": "/ˈhelθi/", "ru": "здоровый, полезный", "ex": "Fruit is healthy food.", "ga": "healthy", "exRu": "Фрукты — полезная еда.", "note": ""}, {"w": "also", "ipa": "/ˈɔːlsəʊ/", "ru": "также", "ex": "I also like bananas.", "ga": "also", "exRu": "Я также люблю бананы.", "note": ""}, {"w": "extra", "ipa": "/ˈekstrə/", "ru": "дополнительный", "ex": "Can I have an extra piece of pizza?", "ga": "extra", "exRu": "Можно мне дополнительный кусок пиццы?", "note": ""}, {"w": "an ingredient", "ipa": "/ɪnˈɡriːdiənt/", "ru": "ингредиент", "ex": "Sugar is an ingredient in this cake.", "ga": "ingredient", "exRu": "Сахар — ингредиент этого торта.", "note": ""}, {"w": "at least", "ipa": "/ət ˈliːst/", "ru": "по крайней мере", "ex": "Eat at least five fruits a day.", "ga": "at least", "exRu": "Ешь по крайней мере пять фруктов в день.", "note": ""}, {"w": "to add", "ipa": "/æd/", "ru": "добавлять", "ex": "Add some salt to the soup.", "ga": "Add", "exRu": "Добавь немного соли в суп.", "note": ""}, {"w": "additive", "ipa": "/ˈædətɪv/", "ru": "добавка", "ex": "E200 is an additive.", "ga": "additive", "exRu": "E200 — это добавка.", "note": ""}, {"w": "a chemical additive", "ipa": "/ˈkemɪkl ˈædətɪv/", "ru": "химическая добавка", "ex": "These sweets contain a chemical additive.", "ga": "chemical additive", "exRu": "Эти конфеты содержат химическую добавку.", "note": ""}].map((w,i)=>Object.assign({id:i},w));
@@ -106,7 +106,9 @@ const TEST_N=12;
 const $=(s,r)=>(r||document).querySelector(s);
 const $$=(s,r)=>Array.from((r||document).querySelectorAll(s));
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-function others(w,n){return shuffle(W.filter(x=>x.id!==w.id)).slice(0,n);}
+function others(w,n,grp){let p=shuffle(W.filter(x=>x.id!==w.id));if(grp&&w.g){const o=p.filter(x=>x.g!==w.g);if(o.length>=n)p=o;}return p.slice(0,n);}
+const SAY=w=>w.say||w.w;
+const ACC=w=>(w.acc||[w.w]).map(core);
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 let voice=null;
 function pickVoice(){try{const vs=speechSynthesis.getVoices();voice=vs.find(v=>v.lang==='en-GB')||vs.find(v=>/^en/i.test(v.lang))||null;}catch(e){}}
@@ -143,7 +145,7 @@ function buildPage(){
 
 /* ---------- 1. word list ---------- */
 addSection('list','Список слов','Список','Прочитай и послушай все слова. Нажимай 🔊.',(b)=>{
-  b.innerHTML=`<table>${W.map((x,k)=>`<tr><td class="n">${k+1}</td><td><b>${esc(x.w)}</b></td><td class="ip">${esc(x.ipa)}</td><td>${esc(x.ru)}${x.note?`<br><span class="note">⚠️ ${esc(x.note)}</span>`:''}</td><td>${sayBtn(x.w)}</td></tr>`).join('')}</table>`;
+  b.innerHTML=`<table>${W.map((x,k)=>`<tr><td class="n">${k+1}</td><td><b>${esc(x.w)}</b></td><td class="ip">${esc(x.ipa)}</td><td>${esc(x.ru)}${x.note?`<br><span class="note">⚠️ ${esc(x.note)}</span>`:''}</td><td>${sayBtn(SAY(x))}</td></tr>`).join('')}</table>`;
   bindSay(b);
 });
 SECTIONS[0].noReset=true;
@@ -153,7 +155,7 @@ addSection('cards','Карточки','Карточки','Нажми на кар
   let order=W.slice(),i=0,ruFirst=false;
   function show(){
     const w=order[i];
-    const en=`<div class="bigw">${esc(w.w)}</div><div class="ip" style="color:#7a7468">${esc(w.ipa)}</div><div style="margin-top:10px">${sayBtn(w.w)}</div>`;
+    const en=`<div class="bigw">${esc(w.w)}</div><div class="ip" style="color:#7a7468">${esc(w.ipa)}</div><div style="margin-top:10px">${sayBtn(SAY(w))}</div>`;
     const exb=`<div class="ex">${esc(w.ex)} ${sayBtn(w.ex)}</div><div class="exru">${esc(w.exRu)}</div>`;
     const ru=`<div class="bigru">${esc(w.ru)}</div>${w.note?`<div class="note">⚠️ ${esc(w.note)}</div>`:''}${exb}`;
     b.innerHTML=`<div class="flip"><div class="inner"><div class="face front">${ruFirst?`<div class="bigru">${esc(w.ru)}</div>`:en}</div><div class="face back">${ruFirst?en+exb:ru}</div></div></div>
@@ -165,7 +167,7 @@ addSection('cards','Карточки','Карточки','Нажми на кар
     const act={pv:()=>{i=(i-1+order.length)%order.length;show();speakFront();},nx:()=>{i=(i+1)%order.length;show();speakFront();},fl:()=>c.classList.toggle('on'),mix:()=>{order=shuffle(W);i=0;show();},side:()=>{ruFirst=!ruFirst;show();}};
     $$('[data-a]',b).forEach(x=>x.onclick=act[x.dataset.a]);
   }
-  function speakFront(){if(!ruFirst)speak(order[i].w);}
+  function speakFront(){if(!ruFirst)speak(SAY(order[i]));}
   show();
 });
 
@@ -188,9 +190,9 @@ function choiceList(b,s,items){
     });
   });
 }
-function qEnRu(w){return{html:`<span class="w">${esc(w.w)}</span> <span class="ip">${esc(w.ipa)}</span> ${sayBtn(w.w)}`,options:shuffle([w.ru,...others(w,3).map(x=>x.ru)]),answer:w.ru,afterSay:w.w,word:w};}
-function qRuEn(w){return{html:`<span class="w">${esc(w.ru)}</span>`,options:shuffle([w.w,...others(w,3).map(x=>x.w)]),answer:w.w,after:`<b>${esc(w.w)}</b> ${esc(w.ipa)}`,afterSay:w.w,word:w};}
-function qGap(w){return{html:`<span class="sent">${gapHtml(w)}</span>`,options:shuffle([w.ga.toLowerCase(),...others(w,3).map(x=>x.ga.toLowerCase())]),answer:w.ga.toLowerCase(),after:`<b>${esc(w.ex)}</b> ${sayBtn(w.ex)}<br><span class="tr">${esc(w.exRu)}</span>`,afterSay:w.ex,word:w};}
+function qEnRu(w){return{html:`<span class="w">${esc(w.w)}</span> <span class="ip">${esc(w.ipa)}</span> ${sayBtn(SAY(w))}`,options:shuffle([w.ru,...others(w,3).map(x=>x.ru)]),answer:w.ru,afterSay:SAY(w),word:w};}
+function qRuEn(w){return{html:`<span class="w">${esc(w.ru)}</span>`,options:shuffle([w.w,...others(w,3).map(x=>x.w)]),answer:w.w,after:`<b>${esc(w.w)}</b> ${esc(w.ipa)}`,afterSay:SAY(w),word:w};}
+function qGap(w){return{html:`<span class="sent">${gapHtml(w)}</span>`,options:shuffle([w.ga.toLowerCase(),...others(w,3,true).map(x=>x.ga.toLowerCase())]),answer:w.ga.toLowerCase(),after:`<b>${esc(w.ex)}</b> ${sayBtn(w.ex)}<br><span class="tr">${esc(w.exRu)}</span>`,afterSay:w.ex,word:w};}
 
 addSection('enru','Выбери перевод','Перевод EN→RU','Прочитай английское слово и выбери правильный перевод.',(b,s)=>choiceList(b,s,shuffle(W).map(qEnRu)));
 addSection('ruen','Выбери английское слово','Слово RU→EN','Прочитай перевод и выбери английское слово.',(b,s)=>choiceList(b,s,shuffle(W).map(qRuEn)));
@@ -206,7 +208,7 @@ addSection('match','Найди пару','Пары','Нажми на англи�
     prog.textContent=`раунд ${r+1} / ${rounds.length} · ошибок: ${mistakes}`;
     b.innerHTML=`<div class="match"><div class="col">${L.map(w=>`<button class="tile" data-s="L" data-id="${w.id}">${esc(w.w)}</button>`).join('')}</div>
      <div class="col">${R.map(w=>`<button class="tile" data-s="R" data-id="${w.id}">${esc(w.ru)}</button>`).join('')}</div></div>`;
-    $$('.tile[data-s=L]',b).forEach(t=>t.onclick=()=>{if(t.classList.contains('done'))return;$$('.tile[data-s=L]',b).forEach(x=>x.classList.remove('sel'));t.classList.add('sel');sel=t;speak(t.textContent);});
+    $$('.tile[data-s=L]',b).forEach(t=>t.onclick=()=>{if(t.classList.contains('done'))return;$$('.tile[data-s=L]',b).forEach(x=>x.classList.remove('sel'));t.classList.add('sel');sel=t;speak(SAY(W[+t.dataset.id]));});
     $$('.tile[data-s=R]',b).forEach(t=>t.onclick=()=>{
       if(!sel||t.classList.contains('done'))return;
       if(sel.dataset.id===t.dataset.id){[sel,t].forEach(x=>{x.classList.remove('sel');x.classList.add('done');});sel=null;done++;if(done===set.length){r++;setTimeout(show,700);}}
@@ -222,20 +224,20 @@ addSection('gap','Вставь слово в предложение','Встав
 function writeList(b,s,mode){
   const items=shuffle(W),tr=tracker(s,items.length);
   b.innerHTML=items.map((w,n)=>`<div class="item" data-n="${n}"><div class="wr"><span class="num">${n+1}</span>
-     ${mode==='listen'?`${sayBtn(w.w)}${sayBtn(w.w,1)}<span class="mask" style="flex:1 1 120px"></span>`:`<span class="ru">${esc(w.ru)} <span class="mask"></span></span>`}
+     ${mode==='listen'?`${sayBtn(ACC(w)[0])}${sayBtn(ACC(w)[0],1)}<span class="mask" style="flex:1 1 120px"></span>`:`<span class="ru">${esc(w.ru)} <span class="mask"></span></span>`}
      <span class="field"><input class="inp" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${mode==='listen'?'напиши, что слышишь':'по-английски'}">
      <button class="btn small" data-a="chk">✓</button><button class="btn alt small" data-a="hint" title="Подсказка">💡</button><button class="btn ghost small" data-a="show" title="Показать ответ">👁</button></span></div>
      <div class="after"></div></div>`).join('');
   bindSay(b);
   $$('.item',b).forEach(it=>{
-    const w=items[+it.dataset.n],ans=core(w.w),inp=$('input',it),mask=$('.mask',it),after=$('.after',it);let tries=0,hints=0,done=false;
+    const w=items[+it.dataset.n],acc=ACC(w),ans=acc[0],inp=$('input',it),mask=$('.mask',it),after=$('.after',it);let tries=0,hints=0,done=false;
     const finish=(ok,clean)=>{done=true;inp.disabled=true;$$('button[data-a]',it).forEach(x=>x.disabled=true);
       inp.classList.add(ok?'good':'bad');tr.mark(clean);
       after.innerHTML=(ok?'<span class="ok">✓ Правильно!</span> ':'<span class="no">Правильно так:</span> ')+`<b>${esc(w.w)}</b> — ${esc(w.ru)}`;
-      speak(w.w);
+      speak(SAY(w));
       const nx=$$('input:not(:disabled)',b)[0];if(nx&&ok)nx.focus({preventScroll:false});};
     const check=()=>{if(done)return;const v=core(inp.value);if(!v)return;
-      if(v===ans)finish(true,tries===0&&hints===0);
+      if(acc.includes(v))finish(true,tries===0&&hints===0);
       else{tries++;inp.classList.add('bad');setTimeout(()=>inp.classList.remove('bad'),600);
         if(tries>=2)finish(false,false);else after.innerHTML='<span class="no">Не так, попробуй ещё раз</span>';}};
     $('[data-a=chk]',it).onclick=check;
